@@ -6,6 +6,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   unlock:
@@ -31,6 +32,15 @@ jobs:
             git commit -m "chore: initialize README"
             git push origin HEAD:main
           fi
+
+      - name: Heart On Your Sleeve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_URL=$(gh issue create --title "Achievement unlock" --body "Automated issue for Heart On Your Sleeve achievement.")
+          ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+          gh api repos/${{ github.repository }}/issues/${ISSUE_NUM}/reactions -f content=heart
+          gh issue close "$ISSUE_NUM"
 
       - name: Create and merge PRs
         env:
