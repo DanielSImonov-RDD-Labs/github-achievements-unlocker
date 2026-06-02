@@ -1,66 +1,61 @@
 # GitHub Achievements Unlocker
 
-Automatically unlock GitHub profile achievements using a single GitHub Actions workflow — no manual steps required after setup.
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-automated-2088FF?logo=github-actions&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Achievements](https://img.shields.io/badge/achievements-4_unlocked-gold)
+
+One workflow. Four achievements. Fully automated.
 
 ---
 
-## Achievements Unlocked
+## Achievements
 
-| Achievement | Description |
-|---|---|
-| **YOLO** | Merged a pull request without a code review |
-| **Quickdraw** | Closed a pull request within 5 minutes of opening |
-| **Pull Shark** | Opened pull requests that got merged (×2, ×16 tiers) |
-| **Pair Extraordinaire** | Co-authored commits included in merged pull requests |
-
----
-
-## How It Works
-
-The workflow runs entirely inside GitHub Actions:
-
-1. Ensures the repository has an initial commit (handles empty repos)
-2. Creates a new branch, appends a log entry, and commits with a `Co-authored-by` trailer
-3. Opens a pull request and immediately merges it without requesting a review
-4. Repeats 10 times — covering all four achievements in one run
+| | Achievement | Trigger |
+|---|---|---|
+| 🔀 | **YOLO** | Merge a PR with no review |
+| ⚡ | **Quickdraw** | Close a PR within 5 minutes |
+| 🦈 | **Pull Shark** | Get multiple PRs merged |
+| 👥 | **Pair Extraordinaire** | Co-author a merged commit |
 
 ---
 
 ## Setup
 
-### 1. Fork or create a new public repository
+### 1. Enable Actions permissions
 
-Achievements only count on **public** repositories.
+> **This step is required — the workflow will fail without it.**
 
-### 2. Add the workflow file
+Go to your repository:
 
-If setting up manually, create `.github/workflows/achievements.yml` with the contents from this repo, then commit it.
+**Settings → Actions → General → Workflow permissions**
 
-If you cloned or forked this repo, the file is already in place.
+- Select **"Read and write permissions"**
+- Check **"Allow GitHub Actions to create and approve pull requests"**
+- Click **Save**
 
-### 3. Run the workflow
+### 2. Run the workflow
 
-Go to the **Actions** tab → select **Unlock GitHub Achievements** → click **Run workflow**.
+**Actions → Unlock GitHub Achievements → Run workflow**
 
-The workflow takes about 1–3 minutes to complete.
+The workflow opens and merges 10 pull requests automatically. Takes about 2 minutes.
 
 ---
 
 ## Requirements
 
 - Public repository
-- No branch protection rules on `main` (default for new repos)
-- GitHub Actions enabled (enabled by default)
+- No branch protection rules on `main`
+- Actions enabled (on by default)
 
-No secrets or tokens need to be configured — the workflow uses the built-in `GITHUB_TOKEN`.
+No secrets or tokens needed — uses the built-in `GITHUB_TOKEN`.
 
 ---
 
 ## Notes
 
-- Achievements may take a few hours to appear on your GitHub profile
-- Running the workflow multiple times is safe — branch names are timestamped to avoid conflicts
-- The `Co-authored-by` line uses a placeholder user; replace it with a real GitHub account email if you want the co-authorship to reflect on another profile
+- Achievements appear on your profile within a few hours of the run completing
+- Safe to run multiple times — branches are timestamped to avoid conflicts
+- Replace `dummy@example.com` in the workflow with a real GitHub account email to reflect co-authorship on another profile
 
 ---
 
