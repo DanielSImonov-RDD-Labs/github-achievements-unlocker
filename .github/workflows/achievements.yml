@@ -2,11 +2,16 @@ name: Unlock GitHub Achievements
 
 on:
   workflow_dispatch:
+    inputs:
+      pr_target:
+        description: Total public merged pull requests to reach (tiers 2 / 16 / 128 / 1024)
+        default: "16"
+      coauthor:
+        description: GitHub login that agreed to co-author (optional, for Pair Extraordinaire)
+        required: false
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
 
 jobs:
   unlock:
@@ -15,62 +20,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure Git
+      - name: Unlock achievements
+        env:
+          GH_TOKEN: ${{ secrets.ACHIEVEMENTS_TOKEN }}
+          PR_TARGET: ${{ inputs.pr_target }}
+          COAUTHOR: ${{ inputs.coauthor }}
         run: |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-
-      - name: Initialize README if missing
-        run: |
-          if [ ! -f README.md ]; then
-            printf "# GitHub Achievements Unlocker\n\nAutomated achievement workflow.\n" > README.md
-            git add README.md
-            git commit -m "chore: initialize README"
-            git push origin HEAD:main
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Add a personal access token as the ACHIEVEMENTS_TOKEN secret. The built-in GITHUB_TOKEN acts as github-actions[bot], so nothing is credited to you."
+            exit 1
           fi
-
-      - name: Heart On Your Sleeve
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE_URL=$(gh issue create --title "Achievement unlock" --body "Automated issue for Heart On Your Sleeve achievement.")
-          ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-          gh api repos/${{ github.repository }}/issues/${ISSUE_NUM}/reactions -f content=heart
-          gh issue close "$ISSUE_NUM"
-
-      - name: Create and merge PRs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          for i in $(seq 1 10); do
-            git checkout main
-            git pull origin main
-
-            BRANCH="achievement/round-${i}-$(date +%s)"
-            git checkout -b "$BRANCH"
-
-            mkdir -p logs
-            echo "Round ${i} - $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> logs/log.md
-            git add logs/log.md
-
-            MSG="$(printf 'feat: achievement round %s\n\nCo-authored-by: DummyUser <dummy@example.com>' "$i")"
-            git commit -m "$MSG"
-
-            git push origin "$BRANCH"
-
-            PR_URL=$(gh pr create \
-              --title "Achievement round ${i}" \
-              --body "Automated achievement PR - round ${i}." \
-              --base main \
-              --head "$BRANCH")
-
-            PR_NUM=$(echo "$PR_URL" | grep -oE '[0-9]+$')
-
-            gh pr merge "$PR_NUM" --merge --delete-branch
-
-            echo "PR ${PR_NUM} merged."
-          done
+          bash unlock.sh run --repo "$GITHUB_REPOSITORY" --pr-target "$PR_TARGET" ${COAUTHOR:+--coauthor "$COAUTHOR"}
